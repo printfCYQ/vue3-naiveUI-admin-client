@@ -31,11 +31,14 @@
 
 <script setup lang="ts">
 import type { ILoginParams } from '@/api/user/types';
-import router from '@/router';
-import { useAppStore } from '@/store';
+import { useAppStore, useUserStore } from '@/store';
 import type { ConfigProviderProps, FormInst } from 'naive-ui';
 import { createDiscreteApi, darkTheme, lightTheme } from 'naive-ui';
-const store = useAppStore()
+import { useRoute, useRouter } from 'vue-router';
+const router = useRouter()
+const route = useRoute()
+const appStore = useAppStore()
+const userStore = useUserStore()
 const formRef = ref<FormInst | null>(null)
 const themeRef = ref<'light' | 'dark'>('light')
 const configProviderPropsRef = computed<ConfigProviderProps>(() => ({
@@ -51,7 +54,7 @@ const { message } = createDiscreteApi(
 let loading = ref<boolean>(false) // 按钮loading
 
 // 登陆表达form
-const loginForm = ref<ILoginParams>({ 
+const loginForm = ref<ILoginParams>({
   email: 'admin@qq.com',
   password: 'admin',
   code: '1234'
@@ -83,7 +86,8 @@ const handleValidateClick = (e: MouseEvent) => {
     if (!errors) {
       loading.value = true
       try {
-        await store.login(loginForm.value)
+        await appStore.login(loginForm.value)
+        await userStore.getCurrentUserInfo()
         message.success('登陆成功')
         router.push('/')
       } catch (error: any) {

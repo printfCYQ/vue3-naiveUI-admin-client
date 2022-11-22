@@ -1,10 +1,18 @@
-import DashboardPage from '@/pages/Dashboard/index.vue';
+import LayoutPage from '@/pages/Layout/Layout/index.vue';
 import LoginPage from '@/pages/Login/index.vue';
 import { useAppStore } from "@/store";
 import type { NavigationGuardNext, RouteLocationNormalized, RouteRecordRaw } from 'vue-router';
 import { createRouter, createWebHashHistory } from "vue-router";
 const routes: Array<RouteRecordRaw> = [
-    { path: '/', name: 'Dashboard', component: DashboardPage },
+    {
+        path: '/',
+        name: 'root',
+        component: LayoutPage,
+        redirect: 'dashboard',
+        children: [
+            { path: 'dashboard', name: 'Dashboard', component: () => import('@/pages/Dashboard/index.vue') },
+        ]
+    },
     { path: '/login', name: 'Loging', component: LoginPage },
 ]
 

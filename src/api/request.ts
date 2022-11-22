@@ -1,4 +1,5 @@
 //http.ts
+import { useAppStore } from '@/store'
 import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
 import NProgress from 'nprogress'
@@ -9,10 +10,9 @@ axios.defaults.timeout = 10000
 axios.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8'
 axios.interceptors.request.use(
     (config): AxiosRequestConfig<any> => {
-        const token = window.sessionStorage.getItem('token')
-        if (token) {
-            //@ts-ignore
-            config.headers.token = token
+        const appStore = useAppStore()
+        if (appStore.token && config.headers) {
+            config.headers["Authorization"] = "Bearer " + appStore.token;
         }
         return config
     },
@@ -21,13 +21,20 @@ axios.interceptors.request.use(
     }
 )
 // 响应拦截
-axios.interceptors.response.use((res) => {
-    console.log(res);
-    if (res.data.code === 111) {
-        sessionStorage.setItem('token', '')
-        // token过期操作
+axios.interceptors.response.use(async (res) => {
+    const code = res.data.code
+    const appStore = useAppStore()
+    if (code === 401) {
+        await appStore.logout()
     }
     return res
+}, async (error) => {
+    const status = error.response.status
+    const appStore = useAppStore()
+    if (status === 401) {
+        await appStore.logout()
+    }
+    return error
 })
 
 export interface ResType<T> {
@@ -52,9 +59,10 @@ const http: Http = {
                     NProgress.done()
                     resolve(res.data)
                 })
-                .catch((err) => {
+                .catch(async (err) => {
                     NProgress.done()
-                    reject(err.data)
+                    console.log('err', err);
+                    reject(err)
                 })
         })
     },
@@ -69,7 +77,7 @@ const http: Http = {
                 })
                 .catch((err) => {
                     NProgress.done()
-                    reject(err.data)
+                    reject(err)
                 })
         })
     },
@@ -86,7 +94,7 @@ const http: Http = {
                 })
                 .catch((err) => {
                     NProgress.done()
-                    reject(err.data)
+                    reject(err)
                 })
         })
     },
