@@ -6,6 +6,15 @@ import Components from "unplugin-vue-components/vite";
 import { defineConfig } from "vite";
 // https://vitejs.dev/config/
 export default defineConfig({
+  server: {
+    proxy: {
+      '/dev': {
+        target: 'http://localhost:7001/',
+        changeOrigin: true,
+        rewrite: path => path.replace(/^\/dev/, ''),
+      }
+    }
+  },
   plugins: [
     vue(),
     AutoImport({
