@@ -1,19 +1,73 @@
+import { PermissionEnum } from '@/config/permission.config';
 import LayoutPage from '@/pages/Layout/Layout/index.vue';
+import BlankLayoutPage from '@/pages/Layout/BlankLayout/index.vue';
 import LoginPage from '@/pages/Login/index.vue';
 import { useAppStore } from "@/store";
 import type { NavigationGuardNext, RouteLocationNormalized, RouteRecordRaw } from 'vue-router';
 import { createRouter, createWebHashHistory } from "vue-router";
-const routes: Array<RouteRecordRaw> = [
+
+// 扩展RouteMeta类型
+declare module 'vue-router' {
+    interface RouteMeta extends Record<string | number | symbol, unknown> {
+        permission?: string;
+        icon?: string;
+        title?: string;
+    }
+}
+
+export const MENU_ROUTE_NAME = 'menu_router_name'
+export const routes: Array<RouteRecordRaw> = [
     {
         path: '/',
-        name: 'root',
+        name: MENU_ROUTE_NAME,
         component: LayoutPage,
         redirect: 'dashboard',
         children: [
-            { path: 'dashboard', name: 'Dashboard', component: () => import('@/pages/Dashboard/index.vue') },
+            {
+                path: '/dashboard',
+                name: 'Dashboard',
+                meta: {
+                    permission: PermissionEnum.DASHBOARD,
+                    title: '控制台',
+                    icon: 'StatsChart'
+                },
+                component: () => import('@/pages/Dashboard/index.vue')
+            }, {
+                path: '/user',
+                name: 'User',
+                redirect: { path: '/user/list' },
+                meta: {
+                    permission: PermissionEnum.USER,
+                    title: '用户管理',
+                    icon: 'AccessibilitySharp'
+                },
+                component: BlankLayoutPage,
+                children: [
+                    {
+                        path: '/user/list',
+                        name: 'UserList',
+                        meta: {
+                            permission: PermissionEnum.USER_LIST,
+                            title: '用户列表',
+                            icon: 'List'
+                        },
+                        component: () => import('@/pages/User/UserList/index.vue')
+                    },
+                    {
+                        path: '/role/list',
+                        name: 'RoleList',
+                        meta: {
+                            permission: PermissionEnum.USER_LIST,
+                            title: '角色列表',
+                            icon: 'ListCircle'
+                        },
+                        component: () => import('@/pages/User/RoleList/index.vue')
+                    }
+                ]
+            }
         ]
     },
-    { path: '/login', name: 'Loging', component: LoginPage },
+    { path: '/login', name: 'Login', component: LoginPage },
 ]
 
 const router = createRouter({

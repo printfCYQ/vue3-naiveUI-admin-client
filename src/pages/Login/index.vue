@@ -32,25 +32,17 @@
 <script setup lang="ts">
 import type { ILoginParams } from '@/api/user/types';
 import { useAppStore, useUserStore } from '@/store';
-import type { ConfigProviderProps, FormInst } from 'naive-ui';
-import { createDiscreteApi, darkTheme, lightTheme } from 'naive-ui';
-import { useRoute, useRouter } from 'vue-router';
+import type { FormInst } from 'naive-ui';
+import { useMessage } from 'naive-ui';
+import { useRouter } from 'vue-router';
+import axios from "axios";
+
 const router = useRouter()
-const route = useRoute()
 const appStore = useAppStore()
 const userStore = useUserStore()
-const formRef = ref<FormInst | null>(null)
-const themeRef = ref<'light' | 'dark'>('light')
-const configProviderPropsRef = computed<ConfigProviderProps>(() => ({
-  theme: themeRef.value === 'light' ? lightTheme : darkTheme
-}))
-const { message } = createDiscreteApi(
-  ['message'],
-  {
-    configProviderProps: configProviderPropsRef
-  }
-)
+const message = useMessage()
 
+const formRef = ref<FormInst | null>(null)
 let loading = ref<boolean>(false) // 按钮loading
 
 // 登陆表达form
@@ -82,6 +74,11 @@ const rules = {
 // 登陆按钮
 const handleValidateClick = (e: MouseEvent) => {
   e.preventDefault()
+
+  // axios.get('/login').then(res => {
+  //   console.log(res);
+  // })
+  // return
   formRef.value?.validate(async (errors) => {
     if (!errors) {
       loading.value = true
@@ -98,4 +95,10 @@ const handleValidateClick = (e: MouseEvent) => {
   })
   loading.value = false
 }
+
+// onMounted(() => {
+//   axios.get('/createUser').then((res: any) => {
+//     console.log(res);
+//   });
+// });
 </script>

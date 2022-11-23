@@ -1,31 +1,45 @@
 <template>
-    <n-layout-header position="absolute" class="h-16 p-4 flex justify-between items-center" bordered>
+    <n-layout-header position="absolute" class="h-16 px-4  flex justify-between items-center" bordered>
         <div>
-            <n-icon size="24" @click="toggleSideMenu" class="cursor-pointer">
-                <GridOutline v-if="appStore.sideCollapsed" />
-                <Grid v-else />
-            </n-icon>
+            <n-button quaternary>
+                <template #icon>
+                    <n-icon size="24" @click="toggleSideMenu"
+                        class="h-full cursor-pointer flex justify-center items-center">
+                        <ChevronForwardCircleOutline v-if="appStore.sideCollapsed" />
+                        <ChevronBackCircleOutline v-else />
+                    </n-icon>
+                </template>
+            </n-button>
         </div>
         <div>
-            <n-dropdown :options="options" @select="selectDropdown">
+            <n-space>
                 <n-button quaternary>
                     <template #icon>
-                        <n-icon>
-                            <PersonCircleOutline />
+                        <n-icon size="24" @click="toggleTheme"
+                            class="h-full cursor-pointer flex justify-center items-center">
+                            <SunnyOutline v-if="themeStore.theme" />
+                            <Sunny v-else />
                         </n-icon>
                     </template>
-                    {{ userStore?.userName }}
                 </n-button>
-            </n-dropdown>
+                <n-dropdown :options="options" @select="selectDropdown">
+                    <n-button quaternary>
+                        <template #icon>
+                            <n-icon>
+                                <PersonCircleOutline />
+                            </n-icon>
+                        </template>
+                        {{ userStore?.userName }}
+                    </n-button>
+                </n-dropdown>
+            </n-space>
         </div>
     </n-layout-header>
 </template>
 
 <script setup lang="ts">
-import { useAppStore, useUserStore } from '@/store'
-import {
-Grid, GridOutline, LogOutOutline, PersonCircleOutline
-} from '@vicons/ionicons5'
+import { useAppStore, useThemeStore, useUserStore } from '@/store'
+import { ChevronBackCircleOutline, ChevronForwardCircleOutline, LogOutOutline, PersonCircleOutline, Sunny, SunnyOutline } from '@vicons/ionicons5'
 import type { DropdownOption } from 'naive-ui'
 import { NIcon } from 'naive-ui'
 import type { Component } from 'vue'
@@ -34,6 +48,7 @@ const router = useRouter()
 const route = useRoute()
 const appStore = useAppStore()
 const userStore = useUserStore()
+const themeStore = useThemeStore()
 
 const renderIcon = (icon: Component) => {
     return () => {
@@ -63,13 +78,18 @@ const selectDropdown = (key: string | number, option: OptionsType) => {
 }
 
 const logout = () => {
-    router.push(`login?redirect=${route.fullPath}`)
+    // console.log(route.fullPath);
+    router.push({ path: `/login` })
     appStore.logout()
 }
 
 // 侧边菜单展开收缩
 const toggleSideMenu = () => {
     appStore.toggleCollapsed()
+}
+
+const toggleTheme = () => {
+    themeStore.setTheme()
 }
 </script>
 

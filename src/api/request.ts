@@ -1,8 +1,7 @@
-//http.ts
-import { useAppStore } from '@/store'
-import type { AxiosRequestConfig } from 'axios'
-import axios from 'axios'
-import NProgress from 'nprogress'
+import { useAppStore } from '@/store';
+import type { AxiosRequestConfig } from 'axios';
+import axios from 'axios';
+import NProgress from 'nprogress';
 
 // 设置请求头和请求路径
 axios.defaults.baseURL = import.meta.env.VITE_APP_BASE_URL

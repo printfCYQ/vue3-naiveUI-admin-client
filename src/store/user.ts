@@ -1,6 +1,7 @@
 
 import userApi from '@/api/user';
 import { defineStore } from 'pinia';
+import { usePermissionStore } from './permission';
 
 interface UserState {
     userName: string,
@@ -9,7 +10,7 @@ interface UserState {
     role?: Array<string>,
     createdAt?: string,
     updatedAt?: string,
-    permissions?: Array<string>
+    permissions: Array<string>
 }
 
 export const useUserStore = defineStore({
@@ -37,6 +38,7 @@ export const useUserStore = defineStore({
                     this.updatedAt = res.data.updatedAt
                     this.permissions = res.data.permissions
                 }
+                usePermissionStore().generateRoutes(this.permissions, true)
             } catch (error) {
                 return Promise.reject(error)
             }

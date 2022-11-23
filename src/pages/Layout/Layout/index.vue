@@ -3,18 +3,19 @@
         <n-layout has-sider position="absolute">
             <n-layout-sider class="h-screen" bordered :collapsed="appStore.sideCollapsed" collapse-mode="width"
                 :collapsed-width="64" :width="240" :native-scrollbar="false" :inverted="inverted">
-                <img src="@/assets/code.svg" alt="">
-                <n-menu :inverted="inverted" :collapsed-width="64" :collapsed-icon-size="22" :options="menuOptions" />
+                <LayoutLogo></LayoutLogo>
+                <n-menu :inverted="inverted" :collapsed-width="64" :options="menuOptions" :value="$route.path"
+                    @update:value="updateMenu" />
             </n-layout-sider>
             <n-layout content-style="padding: 24px;">
                 <LayoutHeader></LayoutHeader>
-                <n-layout-content position="absolute" style="top:4rem">
-                    <div class="p-8">
+                <n-layout-content style="top:4rem" position="absolute">
+                    <div class="p-8" style="min-height: calc(100vh - 8rem);">
                         <n-card>
-                            <router-view></router-view>
+                            <LayoutContent></LayoutContent>
                         </n-card>
                     </div>
-                    <LayoutFooter></LayoutFooter>
+                    <LayoutFooter :position="''"></LayoutFooter>
                 </n-layout-content>
             </n-layout>
         </n-layout>
@@ -22,94 +23,66 @@
 </template>
   
 <script lang="ts" setup>
+import LayoutContent from '@/pages/Layout/Content/index.vue'
 import LayoutFooter from '@/pages/Layout/Footer/index.vue'
 import LayoutHeader from '@/pages/Layout/Header/index.vue'
-import { useAppStore } from '@/store'
-import {
-BookOutline as BookIcon,
-PersonOutline as PersonIcon,
-WineOutline as WineIcon
-} from '@vicons/ionicons5'
-import { NIcon } from 'naive-ui'
+import LayoutLogo from '@/pages/Layout/Logo/index.vue'
+import { useAppStore, usePermissionStore } from '@/store'
+import { NIcon, type MenuOption } from 'naive-ui'
 import type { Component } from 'vue'
+import { RouterLink, useRouter, type RouteRecordRaw } from 'vue-router'
 const appStore = useAppStore()
-function renderIcon(icon: Component) {
-    return () => h(NIcon, null, { default: () => h(icon) })
-}
+const permissionStore = usePermissionStore()
+const router = useRouter()
 
-const menuOptions = [
-    {
-        label: '且听风吟',
-        key: 'hear-the-wind-sing',
-        icon: renderIcon(BookIcon)
-    },
-    {
-        label: '1973年的弹珠玩具',
-        key: 'pinball-1973',
-        icon: renderIcon(BookIcon),
-        disabled: true,
-        children: [
-            {
-                label: '鼠',
-                key: 'rat'
+const asyncRenderIcon = async (icon: string) => {
+    //@ts-ignore
+    const { [icon]: iconComp } = await import("@vicons/ionicons5");
+    return () => h(NIcon, null, { default: () => h(iconComp) });
+}
+const getOption = async (menu: any): Promise<routerType> => ({
+    // label: () =>
+    //     h(
+    //         RouterLink,
+    //         {
+    //             to: menu.path,
+    //         },
+    //         { default: () => menu.meta.title }
+    //     ),
+    label: menu.meta.title,
+    key: menu.path,
+    icon: await asyncRenderIcon(menu.meta.icon),
+});
+
+type routerType = {
+    label: Component,
+    key: string,
+    icon?: Component,
+    children?: Array<any>
+}
+const menuOptions = ref<Array<routerType>>([]);
+onMounted(async () => {
+    const data = permissionStore.menuRouters as RouteRecordRaw[];
+    menuOptions.value = await Promise.all(
+        data.map(async (m) => {
+            if (m.children && m.children.length > 0) {
+                const children = await Promise.all(
+                    m.children.map(async (child) => await getOption(child))
+                );
+                const menu = await getOption(m);
+                menu.children = children;
+                return menu;
+            } else {
+                return await getOption(m);
             }
-        ]
-    },
-    {
-        label: '寻羊冒险记',
-        key: 'a-wild-sheep-chase',
-        disabled: true,
-        icon: renderIcon(BookIcon)
-    },
-    {
-        label: '舞，舞，舞',
-        key: 'dance-dance-dance',
-        icon: renderIcon(BookIcon),
-        children: [
-            {
-                type: 'group',
-                label: '人物',
-                key: 'people',
-                children: [
-                    {
-                        label: '叙事者',
-                        key: 'narrator',
-                        icon: renderIcon(PersonIcon)
-                    },
-                    {
-                        label: '羊男',
-                        key: 'sheep-man',
-                        icon: renderIcon(PersonIcon)
-                    }
-                ]
-            },
-            {
-                label: '饮品',
-                key: 'beverage',
-                icon: renderIcon(WineIcon),
-                children: [
-                    {
-                        label: '威士忌',
-                        key: 'whisky'
-                    }
-                ]
-            },
-            {
-                label: '食物',
-                key: 'food',
-                children: [
-                    {
-                        label: '三明治',
-                        key: 'sandwich'
-                    }
-                ]
-            },
-            {
-                label: '过去增多，未来减少',
-                key: 'the-past-increases-the-future-recedes'
-            }
-        ]
-    }
-]
+        })
+    );
+});
+
 const inverted = ref<boolean>(false)
+
+const updateMenu = (key: string, item: MenuOption) => {
+    appStore.setActiveMenu(key)
+    router.push(key)
+}
 </script>

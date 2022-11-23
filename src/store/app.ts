@@ -2,9 +2,11 @@ import userApi from '@/api/user';
 import type { ILoginParams } from '@/api/user/types';
 import { defineStore } from 'pinia';
 import { useUserStore } from './user';
+
 interface AppState {
     token: string,
-    sideCollapsed: boolean
+    sideCollapsed: boolean,
+    activeMenu: string,
 }
 
 export const useAppStore = defineStore({
@@ -12,7 +14,8 @@ export const useAppStore = defineStore({
     persist: true, // 开启本地持久化
     state: (): AppState => ({
         token: '', // 用户token
-        sideCollapsed: false // 侧边菜单展开收缩
+        sideCollapsed: false, // 侧边菜单展开收缩
+        activeMenu: '/'
     }),
     actions: {
         // 登陆
@@ -31,9 +34,13 @@ export const useAppStore = defineStore({
             userStore.$reset() // 还原清空store
         },
 
+        setActiveMenu(menu: string) {
+            this.activeMenu = menu
+        },
+
         // 侧边菜单展开收缩
         toggleCollapsed() {
             this.sideCollapsed = !this.sideCollapsed
-        }
+        },
     }
 })
