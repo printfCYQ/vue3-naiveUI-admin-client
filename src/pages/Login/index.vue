@@ -35,7 +35,6 @@ import { useAppStore, useUserStore } from '@/store';
 import type { FormInst } from 'naive-ui';
 import { useMessage } from 'naive-ui';
 import { useRouter } from 'vue-router';
-import axios from "axios";
 
 const router = useRouter()
 const appStore = useAppStore()

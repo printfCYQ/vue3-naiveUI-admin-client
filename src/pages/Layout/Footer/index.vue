@@ -1,7 +1,7 @@
 <template>
     <div>
-        <n-layout-footer bordered :position="position" class="h-16 p-4">
-            城府路
+        <n-layout-footer bordered :position="position" class="h-16 p-4 flex justify-center items-center">
+            <div class="text-gray-300">CYQ NavieUI Admin</div>
         </n-layout-footer>
     </div>
 </template>

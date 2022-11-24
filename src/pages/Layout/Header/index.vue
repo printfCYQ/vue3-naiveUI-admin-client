@@ -1,7 +1,7 @@
 <template>
     <n-layout-header position="absolute" class="h-16 px-4  flex justify-between items-center" bordered>
         <div>
-            <n-button quaternary>
+            <n-button quaternary :focusable=false>
                 <template #icon>
                     <n-icon size="24" @click="toggleSideMenu"
                         class="h-full cursor-pointer flex justify-center items-center">
@@ -13,7 +13,7 @@
         </div>
         <div>
             <n-space>
-                <n-button quaternary>
+                <n-button quaternary :focusable=false>
                     <template #icon>
                         <n-icon size="24" @click="toggleTheme"
                             class="h-full cursor-pointer flex justify-center items-center">
@@ -23,7 +23,7 @@
                     </template>
                 </n-button>
                 <n-dropdown :options="options" @select="selectDropdown">
-                    <n-button quaternary>
+                    <n-button quaternary :focusable=false>
                         <template #icon>
                             <n-icon>
                                 <PersonCircleOutline />

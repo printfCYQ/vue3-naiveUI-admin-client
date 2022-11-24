@@ -9,15 +9,20 @@ import { viteMockServe } from 'vite-plugin-mock';
 export default ({ mode, command }: { mode: string, command: string }) => {
   const prodMock = false;
   return defineConfig({
-    // server: {
-    //   proxy: {
-    //     '/dev': {
-    //       target: 'http://localhost:7001/',
-    //       changeOrigin: true,
-    //       rewrite: path => path.replace(/^\/dev/, ''),
-    //     }
-    //   }
-    // },
+    server: {
+      proxy: {
+        '/mock': {
+          target: 'http://localhost:7001/',
+          changeOrigin: true,
+          rewrite: path => path.replace(/^\/mock/, ''),
+        },
+        '/dev': {
+          target: 'http://localhost:7001/',
+          changeOrigin: true,
+          rewrite: path => path.replace(/^\/dev/, ''),
+        }
+      }
+    },
     plugins: [
       vue(),
       AutoImport({

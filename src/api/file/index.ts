@@ -1,0 +1,1 @@
+export const uploadUrl = '/mock/api/v1/file'
