@@ -4,9 +4,12 @@ export interface ILoginParams {
     code: string
 }
 
-export interface IPaginationParams {
+export interface TUserListParams {
     page: number
     pageSize: number
+    email?: string
+    userName?: string
+    roles?: string
 }
 
 export interface IUserItemParams {
@@ -23,7 +26,7 @@ export interface IUserDelParams {
 export interface IUserApi {
     login: (params: ILoginParams) => Promise<any>
     me: () => Promise<any>
-    users: (params: IPaginationParams) => Promise<any>
+    users: (params: TUserListParams) => Promise<any>
     create: (params: IUserItemParams) => Promise<any>
     update: (params: IUserItemParams) => Promise<any>
     remove: (params: IUserDelParams) => Promise<any>

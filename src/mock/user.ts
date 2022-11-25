@@ -43,7 +43,7 @@ const appMocks: MockMethod[] = [
         },
     },
     {
-        url: "/mock/api/v1/users", // 获取登陆用户信息
+        url: "/mock/api/v1/users", // 用户列表
         method: "get",
         timeout: 1000,
         response: () => {

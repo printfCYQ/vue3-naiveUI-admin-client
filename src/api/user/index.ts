@@ -1,7 +1,7 @@
 import http from '@/api/request'
 import type * as T from './types'
 
-const loginApi: T.IUserApi = {
+const userApi: T.IUserApi = {
     login(params) {
         return http.post('/login', params)
     },
@@ -21,4 +21,4 @@ const loginApi: T.IUserApi = {
         return http.post('/user/del', params)
     },
 }
-export default loginApi
+export default userApi

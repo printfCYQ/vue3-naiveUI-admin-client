@@ -70,7 +70,7 @@
   
 <script lang="ts" setup>
 import userApi from '@/api/user';
-import type { IPaginationParams, IUserDelParams, IUserItemParams } from '@/api/user/types';
+import type { IUserDelParams, IUserItemParams, TUserListParams } from '@/api/user/types';
 import { AddSharp, CreateOutline, RefreshSharp, RemoveSharp, SearchOutline } from '@vicons/ionicons5';
 import type { DataTableColumns, DataTableRowKey } from 'naive-ui';
 import { NButton, NIcon, NImage, NTag, useDialog, useMessage } from 'naive-ui';
@@ -82,7 +82,7 @@ import userFormModal from './userFormModal.vue';
 type searchFormType = {
     email?: string
     userName: string
-    roles: Array<string>
+    roles: string
 }
 const userFormModalRef = ref()
 
@@ -91,7 +91,7 @@ const rowKey = (row: IUserItemParams) => row.id
 let searchForm = ref<searchFormType>({
     email: '',
     userName: '',
-    roles: []
+    roles: ''
 })
 const { roleList } = useRoleList()
 
@@ -192,10 +192,12 @@ const paginationReactive = reactive({
     pageSizes: [5, 10, 20, 50],
     onChange: (page: number) => {
         paginationReactive.page = page
+        getUsers()
     },
     onUpdatePageSize: (pageSize: number) => {
         paginationReactive.pageSize = pageSize
         paginationReactive.page = 1
+        getUsers()
     }
 })
 
@@ -243,12 +245,14 @@ const deleteFun = (ids: number[]) => {
         message.warning('请选择数据')
         return
     }
-    dialog.warning({
+    const d = dialog.warning({
         title: '提示',
         content: '确定删除？',
         positiveText: '确定',
         negativeText: '取消',
+        closable: false,
         onPositiveClick: async () => {
+            d.loading = true
             const params: IUserDelParams = {
                 ids
             }
@@ -258,6 +262,7 @@ const deleteFun = (ids: number[]) => {
                 checkData.list = []
                 await getUsers()
             } catch (error: any) {
+                d.loading = false
                 message.error(error)
             }
         },
@@ -275,9 +280,10 @@ onMounted(async () => {
 
 
 const getUsers = async () => {
-    const params: IPaginationParams = {
+    const params: TUserListParams = {
         page: paginationReactive.page,
-        pageSize: paginationReactive.pageSize
+        pageSize: paginationReactive.pageSize,
+        ...searchForm.value
     }
     loading.value = true
     try {
@@ -299,7 +305,7 @@ const handelReset = () => {
     searchForm.value = {
         email: '',
         userName: '',
-        roles: ['']
+        roles: ''
     }
 }
 
