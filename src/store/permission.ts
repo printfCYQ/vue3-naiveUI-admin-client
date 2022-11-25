@@ -1,6 +1,6 @@
 import { MENU_ROUTE_NAME, routes } from "@/router";
 import { defineStore } from "pinia";
-import type { RouteRecordRaw } from "vue-router";
+import type { RouteRecordName, RouteRecordRaw } from "vue-router";
 
 
 type PermissionSate = {
@@ -26,6 +26,9 @@ export const usePermissionStore = defineStore('permission', {
             const tempRouters = this.routes.find(route => route.name === MENU_ROUTE_NAME)?.children
             // return flatMeta(tempRouters)
             return tempRouters
+        },
+        permissionRoutePathList(): Array<string> {
+            return this.routes ? flatRoutePath(this.routes) : []
         }
     }
 })
@@ -56,4 +59,19 @@ const filterRoutes = (routes: Array<RouteRecordRaw>, permissions: Array<string>)
         // 3. permission在permissions数组里
         return (!route.meta || (route.meta && !route.meta.permission) || (route.meta && route.meta.permission && permissions.includes(route.meta.permission)))
     })
+}
+
+
+// 扁平化 path .用户鉴权
+const flatRoutePath = (routes: Array<RouteRecordRaw>) => {
+    let routePathList: Array<string> = []
+    routes.map((route: RouteRecordRaw) => {
+        if (route.path) {
+            routePathList.push(route.path)
+        }
+        if (route.children) {
+            routePathList.push(...flatRoutePath(route.children))
+        }
+    })
+    return routePathList
 }

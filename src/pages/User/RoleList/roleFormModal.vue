@@ -6,6 +6,13 @@
             <n-form-item label="角色名" path="roleName">
                 <n-input v-model:value="addForm.roleName" placeholder="输入角色名" />
             </n-form-item>
+            <n-form-item label="权限" path="permissions">
+                <n-tree-select multiple cascade checkable check-strategy="child" :options="permissionsTree" clearable
+                    default-expand-all v-model:value="addForm.permissions" label-field="label" key-field="value"
+                    children-field="children" />
+                <!-- <n-tree block-line :data="permissionsTree" :selected-keys="addForm.permissions" checkable expand-on-click
+                    default-expand-all selectable abel-field="label" key-field="value" children-field="children" /> -->
+            </n-form-item>
         </n-form>
         <template #footer>
             <div class="flex justify-end">
@@ -35,6 +42,7 @@
 <script setup lang="ts">
 import roleApi from '@/api/role';
 import type { IRoleItemParams } from '@/api/role/types';
+import { permissionsTree } from '@/config/permission.config';
 import { CloseCircleOutline, CloudDoneOutline } from '@vicons/ionicons5';
 import type { FormInst } from 'naive-ui';
 import { useMessage } from 'naive-ui';
@@ -56,15 +64,40 @@ const rules = {
         message: '请输入角色名',
         trigger: ['blur', 'input']
     },
+    permissions: {
+        type: 'array',
+        required: true,
+        message: '请选择权限',
+        trigger: ['blur', 'change']
+    },
 }
+
+
 const formRef = ref<FormInst | null>(null)
 const showModal = ref<boolean>(false)
 const loading = ref<boolean>(false)
 
 
 const addForm = ref<IRoleItemParams>({
+    id: -1,
     roleName: '',
+    permissions: []
 })
+
+
+const findById = async (id: number) => {
+    try {
+        const res = await roleApi.role({
+            id
+        })
+        console.log(res);
+        addForm.value.roleName = res.data.roleName
+        addForm.value.permissions = res.data.permissions
+        showModal.value = true
+    } catch (error: any) {
+        message.error(error)
+    }
+}
 
 
 // 保存按钮
@@ -102,6 +135,7 @@ const handleClose = () => {
 }
 
 defineExpose({
-    showModal
+    showModal,
+    findById
 })
 </script>

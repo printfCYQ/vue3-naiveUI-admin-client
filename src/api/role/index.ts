@@ -5,6 +5,9 @@ const roleApi: T.IRoleApi = {
     roles(params) {
         return http.get('/roles',params)
     },
+    role(params) {
+        return http.get('/role',params)
+    },
     create(params){
         return http.post('/role/create', params)
     },

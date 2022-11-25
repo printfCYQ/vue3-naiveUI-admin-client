@@ -12,6 +12,10 @@ export interface TUserListParams {
     roles?: string
 }
 
+export interface TUserParams {
+    id: number
+}
+
 export interface IUserItemParams {
     id?: number
     email: string
@@ -27,6 +31,7 @@ export interface IUserApi {
     login: (params: ILoginParams) => Promise<any>
     me: () => Promise<any>
     users: (params: TUserListParams) => Promise<any>
+    user: (params: TUserParams) => Promise<any>
     create: (params: IUserItemParams) => Promise<any>
     update: (params: IUserItemParams) => Promise<any>
     remove: (params: IUserDelParams) => Promise<any>

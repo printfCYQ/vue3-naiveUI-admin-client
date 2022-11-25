@@ -63,13 +63,14 @@
 <script lang="ts" setup>
 import roleApi from '@/api/role';
 import type { IRoleDelParams, IRoleItemParams, IRoleListParams } from '@/api/role/types';
-import { AddSharp, RefreshSharp, RemoveSharp, SearchOutline } from '@vicons/ionicons5';
+import { AddSharp, CreateOutline, RefreshSharp, RemoveSharp, SearchOutline } from '@vicons/ionicons5';
 import type { DataTableColumns, DataTableRowKey } from 'naive-ui';
-import { NButton, NIcon, NInput, useDialog, useMessage } from 'naive-ui';
+import { NButton, NIcon, NInput, NTag, useDialog, useMessage } from 'naive-ui';
 import { h } from 'vue';
 import roleFormModal from './roleFormModal.vue';
+import { permissionsNameObj } from '@/config/permission.config';
 
-
+console.log(permissionsNameObj);
 type searchFormType = {
     roleName: string
 }
@@ -123,8 +124,10 @@ const ShowOrEdit = defineComponent({
 })
 
 const createColumns = ({
+    handelEdit,
     handelDelete
 }: {
+    handelEdit: (rowData: IRoleItemParams) => void
     handelDelete: (rowData: IRoleItemParams) => void
 }): DataTableColumns<IRoleItemParams> => {
     return [
@@ -147,11 +150,45 @@ const createColumns = ({
             }
         },
         {
+            title: 'permissions',
+            key: 'permissions',
+            render(row) {
+                const tags = row?.permissions?.map((permission) => {
+                    return h(
+                        NTag,
+                        {
+                            style: {
+                                marginRight: '6px'
+                            },
+                            type: 'info',
+                            bordered: false
+                        },
+                        {
+                            default: () => permissionsNameObj[permission]
+                        }
+                    )
+                })
+                return tags
+            }
+        },
+        {
             title: 'Action',
             key: 'actions',
             width: 200,
             render(row) {
-                return h(
+                return [h(
+                    NButton,
+                    {
+                        size: 'small',
+                        type: 'primary',
+                        secondary: true,
+                        onClick: () => handelEdit(row)
+                    },
+                    {
+                        icon: () => h(NIcon, null, { default: () => h(CreateOutline) }),
+                        default: () => '编辑'
+                    },
+                ), h(
                     NButton,
                     {
                         style: { marginLeft: '10px' },
@@ -164,7 +201,7 @@ const createColumns = ({
                         icon: () => h(NIcon, null, { default: () => h(RemoveSharp) }),
                         default: () => '删除'
                     }
-                )
+                )]
             }
         }
     ]
@@ -202,6 +239,9 @@ const checkData = reactive<{
 })
 
 const columns = createColumns({
+    handelEdit(rowData) {
+        roleFormModalRef.value.findById(rowData.id)
+    },
     handelDelete(rowData) {
         deleteFun([rowData.id as number])
     }

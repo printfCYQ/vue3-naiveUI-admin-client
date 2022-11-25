@@ -11,8 +11,15 @@ const appMocks: MockMethod[] = [
                     {
                         "id|+1": 1,
                         roleName: "@cname()",
+                        permissions: []
                     },
                 ],
+            });
+            list.map((item: any, index: number) => {
+                item.permissions =
+                    index % 2 === 0
+                        ? ['/dashboard', '/user/list/create', '/user/list/delete', '/user/list/edit']
+                        : ['/dashboard', '/role/list/create', '/role/list/delete', '/role/list/edit']
             });
             return {
                 code: 200,
@@ -20,6 +27,22 @@ const appMocks: MockMethod[] = [
                 data: {
                     roleList: list,
                     totle: list.length,
+                },
+            };
+        },
+    },
+    {
+        url: "/mock/api/v1/role", // 角色 findbyid
+        method: "get",
+        timeout: 1000,
+        response: () => {
+            return {
+                code: 200,
+                message: "",
+                data: {
+                    id: 1,
+                    roleName: Mock.Random.cname(),
+                    permissions: ['/dashboard', '/user/list/create', '/user/list/delete', '/user/list/edit']
                 },
             };
         },

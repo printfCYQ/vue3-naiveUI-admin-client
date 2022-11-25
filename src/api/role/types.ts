@@ -10,9 +10,14 @@ export interface IRoleListParams {
     roleName?: string
 }
 
+export interface IRoleParams {
+    id: number
+}
+
 export interface IRoleItemParams {
     id?: number
     roleName: string
+    permissions?: string[]
 }
 
 export interface IRoleDelParams {
@@ -20,6 +25,7 @@ export interface IRoleDelParams {
 }
 export interface IRoleApi {
     roles: (params: IRoleListParams) => Promise<any>
+    role: (params: IRoleParams) => Promise<any>
     create: (params: IRoleItemParams) => Promise<any>
     update: (params: IRoleItemParams) => Promise<any>
     remove: (params: IRoleDelParams) => Promise<any>

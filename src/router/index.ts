@@ -1,8 +1,10 @@
 import { PermissionEnum } from '@/config/permission.config';
-import LayoutPage from '@/pages/Layout/Layout/index.vue';
+import NotAllowPage from '@/pages/403/index.vue';
+import NotFoundPage from '@/pages/404/index.vue';
 import BlankLayoutPage from '@/pages/Layout/BlankLayout/index.vue';
+import LayoutPage from '@/pages/Layout/Layout/index.vue';
 import LoginPage from '@/pages/Login/index.vue';
-import { useAppStore } from "@/store";
+import { useAppStore, usePermissionStore } from "@/store";
 import type { NavigationGuardNext, RouteLocationNormalized, RouteRecordRaw } from 'vue-router';
 import { createRouter, createWebHashHistory } from "vue-router";
 
@@ -35,7 +37,6 @@ export const routes: Array<RouteRecordRaw> = [
             }, {
                 path: '/user',
                 name: 'User',
-                redirect: { path: '/user/list' },
                 meta: {
                     permission: PermissionEnum.USER,
                     title: '用户管理',
@@ -57,7 +58,7 @@ export const routes: Array<RouteRecordRaw> = [
                         path: '/role/list',
                         name: 'RoleList',
                         meta: {
-                            permission: PermissionEnum.USER_LIST,
+                            permission: PermissionEnum.ROLE_LIST,
                             title: '角色列表',
                             icon: 'ListCircle'
                         },
@@ -68,6 +69,8 @@ export const routes: Array<RouteRecordRaw> = [
         ]
     },
     { path: '/login', name: 'Login', component: LoginPage },
+    { path: '/:pathMatch(.*)', name: '404', component: NotFoundPage },
+    { path: '/403', name: '403', component: NotAllowPage },
 ]
 
 const router = createRouter({
@@ -77,20 +80,31 @@ const router = createRouter({
     scrollBehavior: () => ({ left: 0, top: 0 }) // 跳页后，页面回正
 })
 
-const whiteList = ['/login']; // 路由白名单
+const whiteList = ['/login', '/403', '/404']; // 路由白名单
 
 // 路由守卫
 router.beforeEach((to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
     const appStore = useAppStore();
+    const permissionStore = usePermissionStore();
+
+    const inPermission = permissionStore.permissionRoutePathList.includes(to.path)
+    console.log(inPermission);
+    const inWhite = whiteList.includes(to.path)
     if (!appStore.token) {
         // 没有token，判断是否在白名单内。不在白名单，返回登陆页
-        whiteList.includes(to.path) ? next() : next(`login?redirect=${to.path}`)
+        inWhite ? next() : next(`/login`)
     } else {
         // 有token，是登陆页，不让去。
         if (to.path === '/login') {
             next({ path: '/' })
         }
     }
+
+    // bug
+    // if (to.path) {
+    //     // 没有权限 && 不在白名单内-----跳到403
+    //     appStore.token && !inPermission && !inWhite && next('/403')
+    // }
 
     next();
 })

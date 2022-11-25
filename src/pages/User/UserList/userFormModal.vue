@@ -103,6 +103,29 @@ const addForm = ref<IUserItemParams>({
 })
 
 
+const findById = async (id: number) => {
+    try {
+        const res: any = await userApi.user({
+            id
+        })
+        console.log(res);
+        addForm.value.id = res.data.id
+        addForm.value.email = res.data.email
+        addForm.value.userName = res.data.userName
+        addForm.value.roles = res.data.roles?.map((item: any) => item.id)
+        addForm.value.avatar = res.data.avatar
+        previewFileList.value = [{
+            id: res.data.avatar,
+            name: res.data.avatar,
+            status: 'finished',
+            url: res.data.avatar
+        }]
+        showModal.value = true
+    } catch (error: any) {
+        message.error(error)
+    }
+}
+
 // 保存按钮
 const handelSubmit = () => {
     console.log(addForm.value);
@@ -165,8 +188,7 @@ const handelError = (file: UploadFileInfo) => {
 
 defineExpose({
     showModal,
-    addForm,
-    previewFileList
+    findById
 })
 </script>
 

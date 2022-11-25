@@ -11,6 +11,9 @@ const userApi: T.IUserApi = {
     users(params) {
         return http.get('/users',params)
     },
+    user(params) {
+        return http.get('/user',params)
+    },
     create(params){
         return http.post('/user/create', params)
     },

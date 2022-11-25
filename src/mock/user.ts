@@ -37,7 +37,7 @@ const appMocks: MockMethod[] = [
                     role: ["635e0ab3268f6871381ad9d1"],
                     createdAt: "2022-10-31T12:06:25.407Z",
                     updatedAt: "2022-10-31T12:06:25.407Z",
-                    permissions: ["dashboard", "user:list", "user:list:create"],
+                    permissions: ["/dashboard", "/user", "/user/list", "/user/list/create"],
                 },
             };
         },
@@ -75,6 +75,49 @@ const appMocks: MockMethod[] = [
                 data: {
                     userList: list,
                     totle: list.length,
+                },
+            };
+        },
+    },
+    {
+        url: "/mock/api/v1/user", // 用户 findbyid
+        method: "get",
+        timeout: 1000,
+        response: () => {
+            const { list } = Mock.mock({
+                "list|15-30": [
+                    {
+                        "id|+1": 1,
+                        email: "@email(163.com)",
+                        userName: "@cname()",
+                        avatar: function () {
+                            return Random.image("36x36", "#d8d8d8", "#000", "png", "Logo");
+                        },
+                        roles: [],
+                    },
+                ],
+            });
+            list.map((item: any, index: number) => {
+                item.roles =
+                    index % 2 === 0
+                        ? [
+                            { id: 1, roleName: "admin" },
+                            { id: 2, roleName: "admin2" },
+                        ]
+                        : [{ id: 1, roleName: "admin" }];
+            });
+            return {
+                code: 200,
+                message: "",
+                data: {
+                    id: 1,
+                    email: Mock.Random.email(),
+                    userName: Mock.Random.cname(),
+                    avatar: 'https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg',
+                    roles: [
+                        { id: 1, roleName: "admin" },
+                        { id: 2, roleName: "admin2" },
+                    ]
                 },
             };
         },

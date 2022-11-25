@@ -1,6 +1,6 @@
 type SelectType = {
     label: string
-    value: string
+    value: number
     disabled?: boolean
 }
 
@@ -12,11 +12,11 @@ export default function useRoleList() {
             roleList.value = [
                 {
                     label: "admin",
-                    value: '1',
+                    value: 1,
                 },
                 {
                     label: 'admin2',
-                    value: '2'
+                    value: 2
                 }
             ]
         }, 200)

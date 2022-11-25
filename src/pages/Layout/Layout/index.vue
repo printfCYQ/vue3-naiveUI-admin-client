@@ -2,10 +2,9 @@
     <div class="h-screen" position="relative">
         <n-layout has-sider position="absolute">
             <n-layout-sider class="h-screen" bordered :collapsed="appStore.sideCollapsed" collapse-mode="width"
-                :collapsed-width="64" :width="240" :native-scrollbar="false" :inverted="inverted">
+                :collapsed-width="64" :width="240" :native-scrollbar="false">
                 <LayoutLogo></LayoutLogo>
-                <n-menu :inverted="inverted" :collapsed-width="64" :options="menuOptions" :value="$route.path"
-                    @update:value="updateMenu" />
+                <n-menu :collapsed-width="64" :options="menuOptions" :value="route.path" @update:value="updateMenu" />
             </n-layout-sider>
             <n-layout content-style="padding: 24px;">
                 <LayoutHeader></LayoutHeader>
@@ -21,7 +20,7 @@
         </n-layout>
     </div>
 </template>
-  
+
 <script lang="ts" setup>
 import LayoutContent from '@/pages/Layout/Content/index.vue'
 import LayoutFooter from '@/pages/Layout/Footer/index.vue'
@@ -30,10 +29,11 @@ import LayoutLogo from '@/pages/Layout/Logo/index.vue'
 import { useAppStore, usePermissionStore } from '@/store'
 import { NIcon, type MenuOption } from 'naive-ui'
 import type { Component } from 'vue'
-import { RouterLink, useRouter, type RouteRecordRaw } from 'vue-router'
+import { RouterLink, useRoute, useRouter, type RouteRecordRaw } from 'vue-router'
 const appStore = useAppStore()
 const permissionStore = usePermissionStore()
 const router = useRouter()
+const route = useRoute()
 
 const asyncRenderIcon = async (icon: string) => {
     //@ts-ignore
@@ -41,14 +41,6 @@ const asyncRenderIcon = async (icon: string) => {
     return () => h(NIcon, null, { default: () => h(iconComp) });
 }
 const getOption = async (menu: any): Promise<routerType> => ({
-    // label: () =>
-    //     h(
-    //         RouterLink,
-    //         {
-    //             to: menu.path,
-    //         },
-    //         { default: () => menu.meta.title }
-    //     ),
     label: menu.meta.title,
     key: menu.path,
     icon: await asyncRenderIcon(menu.meta.icon),
@@ -77,9 +69,10 @@ onMounted(async () => {
             }
         })
     );
+    console.log(route.path);
+    console.log(menuOptions.value);
 });
 
-const inverted = ref<boolean>(false)
 
 const updateMenu = (key: string, item: MenuOption) => {
     appStore.setActiveMenu(key)

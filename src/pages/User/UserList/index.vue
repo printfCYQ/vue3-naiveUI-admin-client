@@ -43,7 +43,8 @@
         </n-form>
         <div class="py-4">
             <n-space>
-                <n-button type="success" attr-type="button" @click="handelCreate">
+                <n-button type="success" attr-type="button" @click="handelCreate"
+                    v-permission="PermissionEnum.USER_LIST_CREATE">
                     <template #icon>
                         <n-icon>
                             <AddSharp />
@@ -51,7 +52,8 @@
                     </template>
                     新建用户
                 </n-button>
-                <n-button type="warning" attr-type="button" @click="handelDeleteCheck">
+                <n-button type="warning" attr-type="button" @click="handelDeleteCheck"
+                    v-permission="PermissionEnum.USER_LIST_DELETE">
                     <template #icon>
                         <n-icon>
                             <RemoveSharp />
@@ -69,10 +71,12 @@
 </template>
   
 <script lang="ts" setup>
+import { PermissionEnum } from '@/config/permission.config';
+
 import userApi from '@/api/user';
 import type { IUserDelParams, IUserItemParams, TUserListParams } from '@/api/user/types';
 import { AddSharp, CreateOutline, RefreshSharp, RemoveSharp, SearchOutline } from '@vicons/ionicons5';
-import type { DataTableColumns, DataTableRowKey } from 'naive-ui';
+import type { DataTableColumns, DataTableRowKey, PaginationInfo } from 'naive-ui';
 import { NButton, NIcon, NImage, NTag, useDialog, useMessage } from 'naive-ui';
 import { h } from 'vue';
 import useRoleList from '../hooks/roleList';
@@ -187,9 +191,18 @@ const createColumns = ({
 const paginationReactive = reactive({
     page: 1,
     pageSize: 10,
-    pageCount: 10,
+    pageCount: 1, // 总页数
+    itemCount: 1, // 总条数
     showSizePicker: true,
     pageSizes: [5, 10, 20, 50],
+    prefix: (info: PaginationInfo) => {
+        h(
+            'template',
+            {
+                default: () => info.itemCount
+            }
+        )
+    },
     onChange: (page: number) => {
         paginationReactive.page = page
         getUsers()
@@ -216,13 +229,7 @@ const checkData = reactive<{
 
 const columns = createColumns({
     handelEdit(rowData) {
-        userFormModalRef.value.addForm.id = rowData.id
-        userFormModalRef.value.addForm.email = rowData.email
-        userFormModalRef.value.addForm.userName = rowData.userName
-        userFormModalRef.value.addForm.avatar = rowData.avatar
-        userFormModalRef.value.addForm.roles = rowData.roles?.map(item => item.id)
-        userFormModalRef.value.previewFileList = [{ src: rowData.avatar }]
-        userFormModalRef.value.showModal = true
+        userFormModalRef.value.findById(rowData.id)
     },
     handelDelete(rowData) {
         deleteFun([rowData.id as number])
@@ -289,7 +296,7 @@ const getUsers = async () => {
     try {
         const res = await userApi.users(params)
         userList.value = res.data.userList
-        paginationReactive.pageCount = res.data.total
+        paginationReactive.itemCount = res.data.total
     } catch (error: any) {
         message.error(error)
         loading.value = false
